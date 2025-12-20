@@ -77,3 +77,5 @@ npx playwright test --headed
 ```bash
 npx playwright show-report
 ```
+# jira-ui-auto
+UI Automation of JIRA Filters
