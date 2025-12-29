@@ -16,6 +16,15 @@ class FiltersPage {
 
     // Locator for clear filters button
     this.clearFiltersButton = 'text=Clear';
+
+    // Locator for Switch to JQL button/link
+    this.switchToJQLButton = 'text=Switch to JQL';
+
+    // Locator for JQL input field
+    this.jqlInputField = 'input[data-testid="jql.input"]';
+
+    // Locator for Switch to basic button/link
+    this.switchToBasicButton = 'text=Switch to basic';
   }
 
   async waitForFiltersPageToLoad() {
@@ -73,6 +82,29 @@ class FiltersPage {
 
     // Wait for filters to be cleared (optional: add a wait condition)
     await this.page.waitForTimeout(1000);
+  }
+
+  async switchToJQL() {
+    // Click the "Switch to JQL" button/link
+    await this.page.click(this.switchToJQLButton);
+
+    // Wait for JQL input field to be visible
+    await this.page.waitForSelector(this.jqlInputField, { timeout: 10000 });
+  }
+
+  async getJQLQueryText() {
+    // Get the text/value from the JQL input field
+    const jqlInputElement = this.page.locator(this.jqlInputField);
+    const jqlQuery = await jqlInputElement.inputValue();
+    return jqlQuery;
+  }
+
+  async switchToBasic() {
+    // Click the "Switch to basic" button/link
+    await this.page.click(this.switchToBasicButton);
+
+    // Wait for filters page to be visible again (basic view)
+    await this.page.waitForSelector(this.filtersPageHeader, { timeout: 10000 });
   }
 }
 
