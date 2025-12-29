@@ -9,6 +9,8 @@ const { defineConfig, devices } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './tests',
 
+  globalSetup: require.resolve('./tests/auth/login.setup.js'),
+
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -21,6 +23,7 @@ module.exports = defineConfig({
     headless: false,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    storageState: 'storageState.json',
   },
 
   projects: [
