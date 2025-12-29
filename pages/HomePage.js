@@ -1,6 +1,7 @@
 class HomePage {
   constructor(page) {
     this.page = page;
+    this.constants = require('../utils/constants');
 
     // Locators for homepage validation
     this.yourWorkTab = 'text=Your work';
@@ -13,7 +14,7 @@ class HomePage {
   async waitForHomePageToLoad() {
     // Confirms login was successful
     await this.page.waitForSelector(this.yourWorkTab, {
-      timeout: 30000,
+      timeout: this.constants.TIMEOUTS.PAGE_LOAD,
     });
   }
 
