@@ -10,6 +10,12 @@ class FiltersPage {
 
     // Locator for Status column in results table
     this.statusColumn = '[data-testid="issue.status"]';
+
+    // Locator for status filter dropdown
+    this.statusDropdown = '[data-testid="status.ui.filter.dropdown"]';
+
+    // Locator for clear filters button
+    this.clearFiltersButton = 'text=Clear';
   }
 
   async waitForFiltersPageToLoad() {
@@ -42,6 +48,31 @@ class FiltersPage {
         );
       }
     }
+  }
+
+  async selectStatusFilters(statuses) {
+    // Click the status dropdown to open it
+    await this.page.click(this.statusDropdown);
+
+    // Wait for dropdown to be visible
+    await this.page.waitForSelector('[role="listbox"]', { timeout: 10000 });
+
+    // Select each status checkbox
+    for (const status of statuses) {
+      const statusCheckbox = this.page.locator(`input[value="${status}"]`);
+      await statusCheckbox.check();
+    }
+
+    // Click outside the dropdown or press Escape to close it
+    await this.page.keyboard.press('Escape');
+  }
+
+  async clearAllFilters() {
+    // Click the clear filters button
+    await this.page.click(this.clearFiltersButton);
+
+    // Wait for filters to be cleared (optional: add a wait condition)
+    await this.page.waitForTimeout(1000);
   }
 }
 
