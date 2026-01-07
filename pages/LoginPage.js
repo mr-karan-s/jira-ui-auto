@@ -1,24 +1,28 @@
-class LoginPage {
-  constructor(page) {
-    this.page = page;
+const BasePage = require('./BasePage');
+const FormInputComponent = require('./components/FormInputComponent');
+const NavigationComponent = require('./components/NavigationComponent');
 
-    // Locators (kept private to this page)
-    this.emailInput = '#username';
-    this.passwordInput = '#password';
-    this.loginButton = '#login-submit';
+class LoginPage extends BasePage {
+  constructor(page) {
+    super(page);
+
+    // Initialize components for login form
+    this.emailInput = new FormInputComponent(page, '#username');
+    this.passwordInput = new FormInputComponent(page, '#password');
+    this.loginButton = new NavigationComponent(page, '#login-submit');
   }
 
   async login(email, password) {
     // Navigate to Jira login page
-    await this.page.goto(process.env.JIRA_URL);
+    await this.navigate(process.env.JIRA_URL);
 
     // Enter email and submit
-    await this.page.fill(this.emailInput, email);
-    await this.page.click(this.loginButton);
+    await this.emailInput.fill(email);
+    await this.loginButton.click();
 
     // Enter password and submit
-    await this.page.fill(this.passwordInput, password);
-    await this.page.click(this.loginButton);
+    await this.passwordInput.fill(password);
+    await this.loginButton.click();
   }
 }
 

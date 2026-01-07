@@ -1,29 +1,24 @@
-class HomePage {
+const BasePage = require('./BasePage');
+const NavigationComponent = require('./components/NavigationComponent');
+const DropdownComponent = require('./components/DropdownComponent');
+
+class HomePage extends BasePage {
   constructor(page) {
-    this.page = page;
-    this.constants = require('../utils/constants');
+    super(page);
 
-    // Locators for homepage validation
-    this.yourWorkTab = 'text=Your work';
-
-    // Locators for top navigation
-    this.filtersMenu = 'text=Filters';
-    this.viewAllFiltersOption = 'text=View all filters';
+    // Initialize components
+    this.yourWorkTab = new NavigationComponent(page, 'text=Your work');
+    this.filtersMenu = new DropdownComponent(page, 'text=Filters');
   }
 
   async waitForHomePageToLoad() {
     // Confirms login was successful
-    await this.page.waitForSelector(this.yourWorkTab, {
-      timeout: this.constants.TIMEOUTS.PAGE_LOAD,
-    });
+    await this.waitForElement('text=Your work');
   }
 
   async navigateToFiltersPage() {
-    // Click Filters in top navigation
-    await this.page.click(this.filtersMenu);
-
-    // Click "View all filters" from dropdown
-    await this.page.click(this.viewAllFiltersOption);
+    // Click Filters in top navigation and select "View all filters"
+    await this.filtersMenu.selectOption('View all filters');
   }
 }
 

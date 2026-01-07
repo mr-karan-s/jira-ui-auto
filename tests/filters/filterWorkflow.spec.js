@@ -1,4 +1,4 @@
-const { test } = require('@playwright/test');
+const { test, expect } = require('@playwright/test');
 
 const { HomePage } = require('../../pages/HomePage');
 const { FiltersPage } = require('../../pages/FiltersPage');
@@ -23,7 +23,7 @@ test('Validate Open and Closed Jira Status Filters', async ({ page }) => {
   await homePage.navigateToFiltersPage();
   await filtersPage.waitForFiltersPageToLoad();
 
-  // ===== OPEN STATUS FILTER =====
+  // ===== TEST SCENARIO 1: OPEN STATUS FILTER =====
 
   // Step 5: Create filter
   await filtersPage.clickCreateFilter();
@@ -31,16 +31,23 @@ test('Validate Open and Closed Jira Status Filters', async ({ page }) => {
   // Step 6: Select Open statuses (Open, To Do, In Progress)
   await filtersPage.selectStatusFilters(OPEN_STATUSES);
 
-  // Step 7–8: Validate results contain only Open statuses
-  // (Handles empty results gracefully - logs warning and continues)
-  await filtersPage.validateStatusesInResults(OPEN_STATUSES);
+  // Step 7–8: BUSINESS LOGIC - Validate results contain only Open statuses
+  const openStatusResults = await filtersPage.getResultStatuses();
+  if (openStatusResults.length > 0) {
+    // Verify all returned statuses are in the OPEN_STATUSES list
+    openStatusResults.forEach((status) => {
+      expect(OPEN_STATUSES).toContain(status);
+    });
+  } else {
+    console.warn('No issues returned for the applied filter');
+  }
 
-  // ===== CLEAR FILTERS =====
+  // ===== TEST SCENARIO 2: CLEAR FILTERS =====
 
   // Step 9: Clear existing filters
   await filtersPage.clearAllFilters();
 
-  // ===== CLOSED / DONE STATUS FILTER =====
+  // ===== TEST SCENARIO 3: CLOSED / DONE STATUS FILTER =====
 
   // Step 10: Create filter
   await filtersPage.clickCreateFilter();
@@ -48,9 +55,16 @@ test('Validate Open and Closed Jira Status Filters', async ({ page }) => {
   // Step 11: Select Closed/Done statuses
   await filtersPage.selectStatusFilters(CLOSED_STATUSES);
 
-  // Step 12–13: Validate results contain only Closed/Done statuses
-  // (Handles empty results gracefully - logs warning and continues)
-  await filtersPage.validateStatusesInResults(CLOSED_STATUSES);
+  // Step 12–13: BUSINESS LOGIC - Validate results contain only Closed/Done statuses
+  const closedStatusResults = await filtersPage.getResultStatuses();
+  if (closedStatusResults.length > 0) {
+    // Verify all returned statuses are in the CLOSED_STATUSES list
+    closedStatusResults.forEach((status) => {
+      expect(CLOSED_STATUSES).toContain(status);
+    });
+  } else {
+    console.warn('No issues returned for the applied filter');
+  }
 });
 
 test('Validate JQL Query matches Applied Filters', async ({ page }) => {
@@ -67,7 +81,7 @@ test('Validate JQL Query matches Applied Filters', async ({ page }) => {
   await homePage.navigateToFiltersPage();
   await filtersPage.waitForFiltersPageToLoad();
 
-  // ===== OPEN STATUS FILTER + JQL VALIDATION =====
+  // ===== TEST SCENARIO 1: OPEN STATUS FILTER + JQL VALIDATION =====
 
   // Step 5: Create filter
   await filtersPage.clickCreateFilter();
@@ -75,9 +89,15 @@ test('Validate JQL Query matches Applied Filters', async ({ page }) => {
   // Step 6: Select Open statuses (Open, To Do, In Progress)
   await filtersPage.selectStatusFilters(OPEN_STATUSES);
 
-  // Step 7: Validate results contain only Open statuses
-  // (Handles empty results gracefully - logs warning and continues)
-  await filtersPage.validateStatusesInResults(OPEN_STATUSES);
+  // Step 7: BUSINESS LOGIC - Validate results contain only Open statuses
+  const openStatusResults = await filtersPage.getResultStatuses();
+  if (openStatusResults.length > 0) {
+    openStatusResults.forEach((status) => {
+      expect(OPEN_STATUSES).toContain(status);
+    });
+  } else {
+    console.warn('No issues returned for the applied filter');
+  }
 
   // Step 8: Switch to JQL to validate the query
   await filtersPage.switchToJQL();
@@ -86,25 +106,26 @@ test('Validate JQL Query matches Applied Filters', async ({ page }) => {
   const jqlQuery = await filtersPage.getJQLQueryText();
   console.log('JQL Query for Open Statuses:', jqlQuery);
 
-  // Step 10: Validate JQL query contains expected status criteria
-  if (!OPEN_STATUSES_JQL_PATTERN.test(jqlQuery)) {
-    throw new Error(
-      `JQL query does not match Open statuses pattern. Query: ${jqlQuery}`
-    );
-  }
+  // Step 10: BUSINESS LOGIC - Validate JQL query contains expected status criteria
+  expect(jqlQuery).toMatch(OPEN_STATUSES_JQL_PATTERN);
 
-  // Step 11: Validate results in JQL view still match Open statuses
-  await filtersPage.validateStatusesInResults(OPEN_STATUSES);
+  // Step 11: BUSINESS LOGIC - Validate results in JQL view still match Open statuses
+  const openStatusResultsInJQL = await filtersPage.getResultStatuses();
+  if (openStatusResultsInJQL.length > 0) {
+    openStatusResultsInJQL.forEach((status) => {
+      expect(OPEN_STATUSES).toContain(status);
+    });
+  }
 
   // Step 12: Switch back to basic search
   await filtersPage.switchToBasic();
 
-  // ===== CLEAR FILTERS =====
+  // ===== TEST SCENARIO 2: CLEAR FILTERS =====
 
   // Step 13: Clear existing filters
   await filtersPage.clearAllFilters();
 
-  // ===== CLOSED STATUS FILTER + JQL VALIDATION =====
+  // ===== TEST SCENARIO 3: CLOSED STATUS FILTER + JQL VALIDATION =====
 
   // Step 14: Create filter
   await filtersPage.clickCreateFilter();
@@ -112,9 +133,15 @@ test('Validate JQL Query matches Applied Filters', async ({ page }) => {
   // Step 15: Select Closed/Done statuses
   await filtersPage.selectStatusFilters(CLOSED_STATUSES);
 
-  // Step 16: Validate results contain only Closed/Done statuses
-  // (Handles empty results gracefully - logs warning and continues)
-  await filtersPage.validateStatusesInResults(CLOSED_STATUSES);
+  // Step 16: BUSINESS LOGIC - Validate results contain only Closed/Done statuses
+  const closedStatusResults = await filtersPage.getResultStatuses();
+  if (closedStatusResults.length > 0) {
+    closedStatusResults.forEach((status) => {
+      expect(CLOSED_STATUSES).toContain(status);
+    });
+  } else {
+    console.warn('No issues returned for the applied filter');
+  }
 
   // Step 17: Switch to JQL to validate the query
   await filtersPage.switchToJQL();
@@ -123,15 +150,16 @@ test('Validate JQL Query matches Applied Filters', async ({ page }) => {
   const jqlQueryClosed = await filtersPage.getJQLQueryText();
   console.log('JQL Query for Closed Statuses:', jqlQueryClosed);
 
-  // Step 19: Validate JQL query contains expected status criteria
-  if (!CLOSED_STATUSES_JQL_PATTERN.test(jqlQueryClosed)) {
-    throw new Error(
-      `JQL query does not match Closed statuses pattern. Query: ${jqlQueryClosed}`
-    );
-  }
+  // Step 19: BUSINESS LOGIC - Validate JQL query contains expected status criteria
+  expect(jqlQueryClosed).toMatch(CLOSED_STATUSES_JQL_PATTERN);
 
-  // Step 20: Validate results in JQL view still match Closed statuses
-  await filtersPage.validateStatusesInResults(CLOSED_STATUSES);
+  // Step 20: BUSINESS LOGIC - Validate results in JQL view still match Closed statuses
+  const closedStatusResultsInJQL = await filtersPage.getResultStatuses();
+  if (closedStatusResultsInJQL.length > 0) {
+    closedStatusResultsInJQL.forEach((status) => {
+      expect(CLOSED_STATUSES).toContain(status);
+    });
+  }
 
   // Step 21: Switch back to basic search
   await filtersPage.switchToBasic();
